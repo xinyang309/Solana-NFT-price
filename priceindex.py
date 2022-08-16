@@ -4,8 +4,6 @@ import sched, time
 from datetime import datetime, timezone, timedelta
 import sys
 
-# set your timezone
-delta = timedelta(hours=8)
 
 # for Magiceden API
 symbol = ["crypto_coral_tribe",
@@ -59,7 +57,7 @@ def main():
                 token.append([name, price])
         s3 = datetime.now()
         sys.stdout.write("\rProcessing tokens took time... %s \n " % str(s3-s2).rjust(35))
-        now_utc = datetime.now(timezone(delta)).strftime("%Y-%m-%d %H:%M:%S %Z")
+        now_utc = datetime.now().strftime("%Y-%m-%d %H:%M:%S %Z")
         print(now_utc)
         print(tabulate(nft))
         print(tabulate(token, floatfmt=".6f"))
