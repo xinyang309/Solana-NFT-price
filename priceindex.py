@@ -4,7 +4,7 @@ import sched, time
 from datetime import datetime, timezone, timedelta
 import sys
 
-
+# set your timezone
 delta = timedelta(hours=8)
 
 # for Magiceden API
