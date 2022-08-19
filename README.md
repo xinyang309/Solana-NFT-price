@@ -4,6 +4,8 @@ A simple and functionable piece of code help you retrive Solana NFT price using 
 ## For beginners:
 Installed python and pip, then use pip to install packages, here we need requests and tabulate. You can find the packages in pypi.org, e.g., [requests](https://pypi.org/project/requests/ )
 
+Or you can simplely download the released .exe version, fell free to add your own nft collections by add their symbol -- you can find it in the urls of their Magic Eden pages.
+
 Then you can just copy the code in .py files and open with python, remember to change the extension to .py and that's it.
 
 ## Description
