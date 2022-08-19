@@ -1,45 +1,40 @@
 import requests
 from tabulate import tabulate
-import sched, time
-from datetime import datetime, timezone, timedelta
+from time import sleep
+from datetime import datetime
 import sys
 
+timeout = 6
+sleeptime = 12
+# import nfts and store in variable
+def load_nfts():
+    _nfts = []
+    with open('nfts.txt','r') as file:
+        for line in file:
+            _nfts.append(line.rstrip('\n'))
+    return _nfts
 
-# for Magiceden API
-symbol = ["crypto_coral_tribe",
-    "genesis_genopets_habitats",
-    "genopets_habitats",
-    "genopets",
-    "okay_bears",
-    "degods",
-    "cets_on_creck",
-    "trippin_ape_tribe",
-    "bohemia_",
-    "cat_cartel",
-    "trip_memory",
-]
+# import tokens and store in variable
+def load_tokens():
+    _tokens = {}
+    with open('tokens.txt','r') as file:
+        for line in file:
+            line = line.rstrip('\n').split(",")
+            _tokens[line[0].strip()] = line[1].strip()
+    return _tokens
 
 headers = {
     'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0',
 }
 
-#for birdeye API
-params={
-            "sol" : "So11111111111111111111111111111111111111112",
-            "KI" : "kiGenopAScF8VF31Zbtx2Hg8qA5ArGqvnVtXb83sotc",
-            "Gene" : "GENEtH5amGSi8kHAtQoezp1XEXwZJ8vcuePYnXdKrMYz",
-}
-
-
 def main():
     while True:
         nft = []
         token = []
-        # time tick
         s1 = datetime.now()
-        for i in symbol:
+        for i in load_nfts():
             try:
-                name, floorPrice, listedCount = magiceden_api(i)
+                name, floorPrice, listedCount = magiceden_api(i, timeout)
             except TypeError:
                 nft.append([i, "n/a", "n/a"])
             else:
@@ -47,10 +42,10 @@ def main():
             
         s2 = datetime.now()
         sys.stdout.write("\rProcessing nfts took time... %s \n " % str(s2-s1).rjust(37))
-        for key, value in params.items():
+        for key, value in load_tokens().items():
             name = key
             try:
-                price = birdeye_api(value)
+                price = birdeye_api(value, timeout)
             except TypeError:
                 token.append([name,"n/a"])
             else:
@@ -61,22 +56,19 @@ def main():
         print(now_utc)
         print(tabulate(nft))
         print(tabulate(token, floatfmt=".6f"))
-        time.sleep(30)
+        sleep(sleeptime)
 
 
-def magiceden_api(symbol):
+def magiceden_api(symbol, timeout):
     sys.stdout.write("\rProcessing nft... %s " % symbol.rjust(46))
     try:
-        response = requests.get("https://api-mainnet.magiceden.dev/v2/collections/" + symbol, headers=headers, timeout=12)
+        response = requests.get("https://api-mainnet.magiceden.dev/v2/collections/" + symbol, headers=headers, timeout=timeout)
     except requests.exceptions.ConnectionError:
         print("ConnectionError")
-        pass
     except requests.exceptions.HTTPError:
         print(response.status_code)
-        pass
     except requests.exceptions.Timeout:
         print("Timeout")
-        pass
     else:
         name = response.json()['name']
         floor_price = response.json()['floorPrice']/10**9 * 1.00
@@ -84,19 +76,16 @@ def magiceden_api(symbol):
         sys.stdout.flush()
         return name, floor_price, listed
 
-def birdeye_api(params):
+def birdeye_api(params, timeout):
     sys.stdout.write("\rProcessing token... %s " % params.rjust(46))
     try:
-        response = requests.get("https://public-api.birdeye.so/public/price?address=" + params, headers=headers, timeout=12)
+        response = requests.get("https://public-api.birdeye.so/public/price?address=" + params, headers=headers, timeout=timeout)
     except requests.exceptions.ConnectionError:
         print("ConnectionError")
-        pass
     except requests.exceptions.HTTPError:
         print(response.status_code)
-        pass
     except requests.exceptions.Timeout:
         print("Timeout")
-        pass
     else:
         return response.json()["data"]["value"]
 
