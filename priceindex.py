@@ -1,9 +1,26 @@
 import requests
 from tabulate import tabulate
-import sched, time
+import time
 from datetime import datetime, timezone, timedelta
 import sys
+import concurrent.futures
 
+
+# import tokens and store in variable
+def load_nfts():
+    _nfts = []
+    with open('nfts.txt','r') as file:
+        for line in file:
+            _nfts.append(line.rstrip('\n'))
+    return _nfts
+
+def load_tokens():
+    _tokens = {}
+    with open('tokens.txt','r') as file:
+        for line in file:
+            line = line.rstrip('\n').split(",")
+            _tokens[line[0].strip()] = line[1].strip()
+    return _tokens
 
 # for Magiceden API
 symbol = ["crypto_coral_tribe",
@@ -35,9 +52,8 @@ def main():
     while True:
         nft = []
         token = []
-        # time tick
         s1 = datetime.now()
-        for i in symbol:
+        for i in load_nfts():
             try:
                 name, floorPrice, listedCount = magiceden_api(i)
             except TypeError:
@@ -47,7 +63,7 @@ def main():
             
         s2 = datetime.now()
         sys.stdout.write("\rProcessing nfts took time... %s \n " % str(s2-s1).rjust(37))
-        for key, value in params.items():
+        for key, value in load_tokens().items():
             name = key
             try:
                 price = birdeye_api(value)
